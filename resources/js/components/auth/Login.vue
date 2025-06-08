@@ -5,23 +5,9 @@
 <div class="bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen flex items-center justify-center px-4">
 
   <div class="bg-white shadow-xl rounded-lg p-8 w-full max-w-md">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Create an Account</h2>
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
 
-    <form class="space-y-6" @submit.prevent="register">
-      <!-- Full Name -->
-      <div>
-        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-        <input 
-          type="text" 
-          id="name" 
-          name="name" 
-          v-model="form.name"
-          required 
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="John Doe"
-        />
-      </div>
-
+    <form class="space-y-6" @submit.prevent="login">
       <!-- Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
@@ -51,18 +37,7 @@
       </div>
 
       <!-- Confirm Password -->
-      <div>
-        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-        <input 
-          type="password" 
-          id="confirm_password" 
-          name="password_confirmation" 
-          v-model="form.password_confirmation"
-          required 
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="••••••••"
-        />
-      </div>
+      
 
       <!-- Submit Button -->
       <button
@@ -76,13 +51,13 @@
                </svg>
                
             </span>  
-            {{ loading ? 'Registering...':'Register'  }}
+            {{ loading ? 'Registering...':'Login'  }}
      </button>
     </form>
 
     <p class="mt-6 text-center text-sm text-gray-600">
-      Already have an account? 
-      <router-link to="/app/login" class="text-blue-600 hover:underline font-medium">Login</router-link>
+      Don't  have an account? 
+      <router-link to="/app/register" class="text-blue-600 hover:underline font-medium">Register</router-link> 
     </p>
   </div>
 
@@ -94,45 +69,34 @@
 import { ref,reactive } from 'vue';
 import {showError,successMsg} from '../../helpers/toast-notification'
 import axios from 'axios'
+import {  useRouter } from 'vue-router';
+const router = useRouter();
 const loading = ref(false);
-
 const form = reactive({
-    name:'',
     email:'',
     password:'',
-    password_confirmation:''
 });
-const register = async() =>{
-    console.log(form);
-    loading.value=true
+const login = async()=>{
     try {
-       const response = await axios.post('/api/register',form);
-       console.log(response);      
-       if(response.data.status)
-       {
-         successMsg("Registration succesful check your email")
-       }
-    } catch (error) {
-        if(error.response && error.response.data){
-            if(error.response.data.errors){
-                const errors = error.response.data.errors;
-                showError(Object.values(errors).flat().join('\n'));
-                
-            }
-            else if(error.response.data.message){
-                showError(Object.values(errors).flat().join('\n')) ;
-            }
-            else{
-                showError(Object.values(errors).flat().join('\n'));
-            }
+        const response = await axios.post('/api/login',form);
+        loading.value=true;
+        if(response.data.status){
+          localStorage.setItem('auth_token',response.data.token);
+          axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+          localStorage.setItem('user',JSON.stringify(response.data.user));
+          successMsg(response.data.message);
+          router.push('/app/dashboard')
         }
         else{
-            showError(Object.values(errors).flat().join('\n'));
+            showError(response.data.message)
         }
+    } catch (error) {
+        if(error.response){
+        showError(error.response.data.message)
+      }
     }
     finally{
-        loading.value = false;
+        loading.value=false;
     }
-    
 }
 </script>

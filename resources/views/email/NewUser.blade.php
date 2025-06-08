@@ -60,7 +60,7 @@
     <p>You can view the user's profile by clicking the button below:</p>
     
     <p style="text-align: center;">
-        <a href="http://127.0.0.1:8000/validate/{{ $user->id }}/{{ $user->remember_token }}" style="background-color: #4a6cf7; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block;">
+        <a href="http://127.0.0.1:8000/api/validate/{{ $user->id }}/{{ $user->remember_token }}" style="background-color: #4a6cf7; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block;">
             Validate User Mail
         </a>
     </p>

@@ -9,4 +9,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 Route::controller(AuhtController::class)->group(function(){
    Route::post('/register',[AuhtController::class,'register']);
+   Route::post('login',[AuhtController::class,'login']);
+   Route::get('/validate/{id}/{token}',[AuhtController::class,'validate']);
 });

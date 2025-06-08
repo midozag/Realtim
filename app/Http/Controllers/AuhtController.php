@@ -41,4 +41,52 @@ class AuhtController extends Controller
         'user' => $user
        ]);
     }
+    public function login(Request $request){
+        $validator = Validator::make($request->all(),[
+        'email' => 'required|string|email',
+        'password' => 'required|string'
+      ]);
+      if($validator->fails()){
+        return response()->json([
+          'status' => false,
+          'message' => 'Validation errors',
+          'errors' => $validator->errors()
+        ],422);
+      }
+      $user = User::where('email',$request->email)->first();
+      if(!$user){
+        return response()->json([
+            'status' => false,
+            'message' => 'No user existes with that mail'
+        ],401);
+      }
+      if(!Hash::check($request->password,$user->password)){
+        return response()->json([
+            'status' => false,
+            'message' => 'Email/Mot de passe incorrect'
+        ],401);
+      }
+      $token = $user->createToken('auth_token')->plainTextToken;
+      return response()->json([
+        'status' => true,
+        'message' => 'Succesful login',
+        'user' => $user,
+        'token' => $token
+      ]);
+    }
+    public function validate($id,$token){
+        $user = User::findOrFail($id);
+        if($user->remember_token != $token){
+            return response()->view('email_verification.invalid',[
+                'message' => 'Invalid verification token'
+            ],400);
+        }
+        $user->isValidEmail = true;
+        $user->remember_token = Str::random(60);
+        $user->save();
+        return response()->view('email_verification.success',[
+            'user' => $user
+        ]);
+
+    }
 }
