@@ -6,8 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Events\UserCreated;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
+use PhpParser\Node\Stmt\TryCatch;
+
+use function Laravel\Prompts\error;
 
 class AuhtController extends Controller
 {
@@ -88,5 +93,37 @@ class AuhtController extends Controller
             'user' => $user
         ]);
 
+    }
+    public function redirectToGoogle(){
+      return Socialite::driver('google')->stateless()->redirect();
+    }
+    public function handleGoogleCallback(){
+      try{
+       $googleUser = Socialite::driver('google')->stateless()->user();
+       $user = User::where('email',$googleUser->email)->first();
+       if(!$user){
+        $user = User::create([
+          'name' => $googleUser->name,
+          'email' => $googleUser->email,
+          'password' => Hash::make(Str::random(16)),
+          'isValidEmail' => true,
+          'remember_token' => Str::random(60)
+        ]);
+       }
+       $token = $user->createToken('google-auth')->plainTextToken;
+       return redirect()->away('http://localhost:8000/app/google?token='.$token.'&userId='.$user->id);
+      }
+      catch(error){
+       return redirect()->away('http://localhost:8000/app/register?error=Unabletologintogoogle');
+      }
+    }
+    public function getUser($id){
+      try{
+        $user = User::where('id',$id)->firstOrFail();
+        return response()->json($user);
+      }
+      catch(ModelNotFoundException $e){
+        echo 'User not found';
+      }
     }
 }
