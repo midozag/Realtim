@@ -63,13 +63,13 @@
                     {{ project.task_progress?.progress}}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <router-link to="/app/createProject">
+                    <router-link to="/app/editProject">
                       <button type="submit" class="cursor-pointer text-sm font-bold text-indigo-500 bg-white px-2 py-1 rounded border-1 border-indigo-500">Edit</button>
                     </router-link>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"> 
                      <form @submit.prevent="pinned(project.id)">
-                        <button type="submit" class="cursor-pointer text-sm font-bold text-red-500 bg-white px-2 py-1 rounded border-1 border-red-500">Pinned</button>
+                        <button type="submit" class="cursor-pointer text-sm font-bold text-red-500 hover:text-white bg-white hover:bg-red-500 px-2 py-1 rounded border-1 border-red-500 hover:border-white ">Pinned</button>
                      </form>
                   </td>
                 
@@ -111,7 +111,7 @@ import AdminLayout from '../AdminLayout.vue';
 import {ref,reactive,onMounted} from 'vue';
 import { VueAwesomePaginate } from 'vue-awesome-paginate';
 import axios from 'axios';
-import { showError } from '../../../helpers/toast-notification';
+import { showError, successMsg } from '../../../helpers/toast-notification';
 const current_page=ref(1);
 const pagination = ref({
     current_page:1,
@@ -171,7 +171,7 @@ const search = async() =>{
     };
     
   try {   
-    const response = await axios.post('/api/searchProjects',$requestData);
+    const response = await axios.post('/api/search',$requestData);
     if(response.data.status){
       console.log(response.data.projects);
       projects.value = response.data.projects;
@@ -199,6 +199,15 @@ const search = async() =>{
     loading.value = false;
   }
   
+}
+const pinned = async(id)=>{
+    const response = await axios.post(`/api/projectPinned/${id}`);
+    if(response.data.status){
+       successMsg(response.data.message);
+    }
+    else{
+        showError(error.response.message);
+    }
 }
 
 </script>

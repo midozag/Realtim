@@ -106,4 +106,30 @@ class ProjectController extends Controller
                     'to' => $projects->lastItem(),
                 ]]);
     }
+    public function count(Request $request){
+        $count = Project::count();
+        return response()->json([
+            'count' => $count
+        ]);
+    }
+    public function pinned(Request $request,$id){
+        if(!is_numeric($id)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid id'
+            ]);
+        };
+        //$taskprogress = TaskProgress::where('pinned_on_dashboard',true);
+        //$taskprogress->update([
+        //    'pinned_on_dashboard' => false
+        //]);
+        $taskprogress = TaskProgress::where('projectId',$id);
+        $taskprogress->update([
+            'pinned_on_dashboard' => true
+        ]); 
+        return response()->json([
+            'status' => true,
+            'message' => 'Project '.$id.'is pinned'
+        ]);
+    }
 }

@@ -5,6 +5,8 @@ import Dashboard from '../components/admin/Dashboard.vue'
 import GoogleCallback from '../components/auth/GoogleCallback.vue'
 import CreateProject from '../components/admin/project/Create.vue'
 import ListProject from '../components/admin/project/List.vue'
+import CreateMember from '../components/admin/member/Create.vue'
+import ListMember from '../components/admin/member/List.vue'
 
 const routes = [
     {
@@ -27,6 +29,18 @@ const routes = [
         path:'/app/projects',
         name:'projects',
         component:ListProject,
+        meta:{requiresAuth:true}
+    },
+    {
+        path:'/app/createMember',
+        name:'CreateMember',
+        component:CreateMember,
+        meta:{requiresAuth:true}
+    },
+    {
+        path:'/app/members',
+        name:'members',
+        component:ListMember,
         meta:{requiresAuth:true}
     },
     {
