@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 use App\Models\TaskProgress;
+use App\Models\Task;
 
 class Project extends Model
 {
@@ -26,6 +26,9 @@ class Project extends Model
     public function taskProgress()
     {
         return $this->hasOne(TaskProgress::class,'projectId');
+    }
+    public function tasks(){
+        return $this->hasMany(Task::class,'projectId');
     }
    
 }

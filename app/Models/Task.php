@@ -26,7 +26,7 @@ class Task extends Model
     public static function changeStatus($taskId,$status){
         $task = Task::where('id',$taskId)
         ->update(([
-            'status' => $status
+            'status' => $status,
         ]));
     }
 }

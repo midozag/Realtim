@@ -132,8 +132,6 @@ import router from '../../router';
 const user = ref({});
 const isProfileMenuOpen = ref(false);
 const isMobileMenuOpen = ref(false);
-console.log(isProfileMenuOpen.value);
-
 onMounted(()=>{
     const storedUser = localStorage.getItem('user');
     if(storedUser){

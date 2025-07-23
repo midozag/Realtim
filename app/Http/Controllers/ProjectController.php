@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Project;
 use App\Models\TaskProgress;
+use App\Models\Task;
+use App\Events\NewProjectCreated;
 
 class ProjectController extends Controller
 {
@@ -41,6 +43,8 @@ class ProjectController extends Controller
                 'taskprogress' => $taskprogress
             ];
         });  
+        $count = Project::count();
+        NewProjectCreated::dispatch($count);
         return response()->json([
             'status' => true,
             'message' => 'Project created succesfully with initial task progress',
@@ -119,10 +123,10 @@ class ProjectController extends Controller
                 'message' => 'Invalid id'
             ]);
         };
-        //$taskprogress = TaskProgress::where('pinned_on_dashboard',true);
-        //$taskprogress->update([
-        //    'pinned_on_dashboard' => false
-        //]);
+        TaskProgress::where('pinned_on_dashboard',true)
+        ->update([
+           'pinned_on_dashboard' => false
+        ]);
         $taskprogress = TaskProgress::where('projectId',$id);
         $taskprogress->update([
             'pinned_on_dashboard' => true
@@ -130,6 +134,55 @@ class ProjectController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Project '.$id.'is pinned'
+        ]);
+    }
+    public function getPinnedProject(Request $request){
+        
+        $pinnedProject = TaskProgress::where('pinned_on_dashboard',1)->first();
+        
+        
+        return response([
+            'status' => true,
+            'project' => $pinnedProject->projectId,
+            'message' => 'Pinned projects'
+        ]);
+    }
+    public function getProjectData(Request $request){
+
+      $projectId = $request->projectId; 
+      $task = Task::where('projectId',$projectId)->get();
+      $taskprogress = TaskProgress::where('projectId',$projectId)
+       ->select('progress')
+       ->first();
+      $pending = 0;
+      $completed = 0;
+      foreach($task as $row){
+        if($row->status == Task::PENDING){
+          $pending++;
+        }
+        if($row->status == Task::COMPLETED){
+          $completed++;
+        }
+      }
+      return response([
+        'tasks' => [$pending,$completed],
+        'progress' => $taskprogress->progress
+       ]);
+    }
+     public function getProject(Request $request){
+        $slug = $request->slug;
+        $projects = Project::with(['tasks.taskmembers.member','taskProgress'])
+        ->where('projects.slug',$slug)->first();
+        if(!$slug){
+          return response()->json([
+            'status' => false,
+            'message' => 'no projects',
+        ]);   
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Projects got succesfully',
+            'projects' => $projects
         ]);
     }
 }

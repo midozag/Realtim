@@ -8,6 +8,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use function Laravel\Prompts\table;
+use function PHPUnit\Framework\isEmpty;
+
+
 
 class MemberController extends Controller
 {
@@ -42,6 +45,43 @@ class MemberController extends Controller
             'message' => 'Members returned succesfully',
             'members' => $members
         ]);
+    }
+    public function searchMember(Request $request){
+        $validator = Validator::make($request->all(),[
+            'name' => 'string|nullable',
+           ]);
+           if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation errors',
+                'errors' => $validator->errors()
+            ],422);
+           }
+        if($request->name === " "){
+            $members=Memeber::all();
+            return response()->json([
+                'status' => true,
+             'message' => 'Member returned succesfully',
+             'members' => $members,
+            ]);
+        };
+        $members = Memeber::where('name','LIKE',"%{$request->name}%")
+                    ->orderBy('created_at','desc')
+                    ->get();
+         if(is_null($members)){
+            return response()->json([
+                'status' => false,
+                'message' => "No members '{$request->name}' matching",
+                'members' => [],
+              ],404);
+           }
+            return response()->json([
+             'status' => true,
+             'message' => 'Member returned succesfully',
+             'members' => $members,
+
+           ]);
+        
     }
     public function search(Request $request){
         $perPage = $request->input('per_page');
@@ -92,5 +132,19 @@ class MemberController extends Controller
              ]
 
            ]);
+    }
+    public function listMembers(Request $request){
+        $members = Memeber::all();
+        if(count($members) === 0){
+         return response()->json([
+            'status' => false,
+            'message' => 'Members not existed',
+        ]);   
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Members returned succesfully',
+            'members' => $members
+        ]);
     }
 }

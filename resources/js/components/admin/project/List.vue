@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-3xl mx-auto">
         <div class="flex justify-between px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600">
             <h3 class="text-xl font-semibold text-white">Projects table</h3>
             <router-link to="/app/createProject">
@@ -63,7 +63,7 @@
                     {{ project.task_progress?.progress}}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <router-link to="/app/editProject">
+                    <router-link :to="`/app/kaban?slug=${project.slug}`">
                       <button type="submit" class="cursor-pointer text-sm font-bold text-indigo-500 bg-white px-2 py-1 rounded border-1 border-indigo-500">Edit</button>
                     </router-link>
                   </td>
@@ -75,7 +75,7 @@
                 
                   
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <router-link to="/app/createProject">
+                    <router-link :to="`/app/kaban?slug=${project.slug}`">
                       <button type="submit" class="cursor-pointer text-sm font-bold text-orange-400 bg-white px-2 py-1 rounded border-1 border-orange-400">View</button>
                     </router-link>
                   </td>
@@ -118,7 +118,7 @@ const pagination = ref({
     from:0,
     to:0,
     total:3,
-    per_page:2,
+    per_page:4,
     last_page:0
 })
 const form =reactive({

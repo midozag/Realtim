@@ -7,6 +7,9 @@ import CreateProject from '../components/admin/project/Create.vue'
 import ListProject from '../components/admin/project/List.vue'
 import CreateMember from '../components/admin/member/Create.vue'
 import ListMember from '../components/admin/member/List.vue'
+import TestReverb from '../components/admin/test/TestReverb.vue'
+import Kaban from '../components/admin/project/kabanboard.vue'
+import Modal from '../components/admin/project/modal.vue'
 
 const routes = [
     {
@@ -41,6 +44,24 @@ const routes = [
         path:'/app/members',
         name:'members',
         component:ListMember,
+        meta:{requiresAuth:true}
+    },
+    {
+        path:'/app/test',
+        name:'test',
+        component:TestReverb,
+        meta:{requiresAuth:true}
+    },
+    {
+        path:'/app/modal',
+        name:'modam',
+        component:Modal,
+        meta:{requiresAuth:true}
+    },
+    {
+        path:'/app/kaban:slug?',
+        name:'kaban',
+        component:Kaban,
         meta:{requiresAuth:true}
     },
     {

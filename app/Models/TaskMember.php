@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
+use App\Models\Memeber;
 
 class TaskMember extends Model
 {
@@ -16,6 +16,6 @@ class TaskMember extends Model
         'memberId'
     ];
     public function member(){
-        return $this->belongsTo(User::class,'memberId');
+        return $this->belongsTo(Memeber::class,'memberId');
     }
 }

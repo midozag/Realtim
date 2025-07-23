@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-     <div class="max-w-2xl mx-auto">
+     <div class="max-w-3xl mx-auto">
         <div class="flex justify-between px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600">
             <h3 class="text-xl font-semibold text-white">Members table</h3>
             <router-link to="/app/createMember">
