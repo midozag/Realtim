@@ -41,10 +41,10 @@
         <div class="w-full">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-xs sm:text-sm font-medium text-gray-700">Progress</span>
-                <span class="text-xs sm:text-sm font-medium text-green-600">{{ project.task_progress?.progress}}</span>
+                <span class="text-xs sm:text-sm font-medium text-green-600">{{ progress}}</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3">
-                <div class="bg-green-500 h-2 sm:h-3 rounded-full transition-all duration-300 ease-out" :style="`width: ${ project.task_progress?.progress}%`"></div>
+                <div class="bg-green-500 h-2 sm:h-3 rounded-full transition-all duration-300 ease-out" :style="`width: ${progress}%`"></div>
             </div>
         </div>
       </div>
@@ -52,7 +52,10 @@
        <div class="flex gap-3 sm:gap-4 lg:gap-6 my-2 sm:my-4 min-w-max">
         
         <!-- Add Task Column -->
-        <div class="bg-gray-300 rounded-lg p-3 sm:p-4 w-60 sm:w-70 lg:w-80 min-w-64 sm:min-w-70 lg:min-w-80">
+        <div 
+        @dragover="handleDragOverCompleted"
+        @drop="handleDropStart"
+        class="bg-gray-300 rounded-lg p-3 sm:p-4 w-60 sm:w-70 lg:w-80 min-w-64 sm:min-w-70 lg:min-w-80">
             <!-- Add Task Button -->
             <button data-modal-target="crud-modal" data-modal-toggle="crud-modal" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold py-2 sm:py-3 px-3 sm:px-4 rounded-lg mb-3 sm:mb-4 transition-colors text-sm sm:text-base" type="button">
               Add task
@@ -145,8 +148,9 @@
         </div>
         </div>
             </div> 
+            
             <div v-if="loading">
-            <div  
+                <div  
              v-for="task in tasks"
              v-bind:key="task.id"
             >
@@ -179,14 +183,16 @@
             </div>
             </div>
             <div v-else>
-               
+
             </div>
+            
            
             
         </div>
 
         <!-- Pending Column -->
         <div 
+        
         @dragover="handleDragOver"
         @drop="handleDrop"
         class="bg-gray-300 rounded-lg p-3 sm:p-4 w-64 sm:w-70 lg:w-80 min-w-64 sm:min-w-70 lg:min-w-80">
@@ -263,7 +269,7 @@
                         </div>
                         
                     </div>
-                    <div  class="text-sm sm:text-sm text-gray-600 ml-2">{{ task.taskmembers?.length }} Membres</div>
+                    <div  class="text-sm sm:text-sm text-gray-600 ml-2">{{ task.taskmembers.length }} Membres</div>
                 </div>
               </div>
               </form>
@@ -298,6 +304,8 @@ const members = ref([{}]);
 const draggedTask = ref(null);
 const pendingTasks = ref([]);
 const completedTasks = ref([]);
+const allTasks = ref([]);
+const progress = ref(0)
 const form = reactive({
     name:''
 });
@@ -308,22 +316,50 @@ const taskObject = reactive({
 });
 let selectedMembers = ref([]);
 
-onMounted(()=>{  
-  getProject()
+onMounted(()=>{
   ListTask()
-  initFlowbite()
-  getMembers()
   ListPendingTask()
   ListCompletedTasks()
+  ListAllTask()
+   
+  getProject()
+  initFlowbite()
+  getMembers()
+  
+  
+  
 })
-
-
+const calculateProgress = async() =>{
+    if (allTasks.value.length > 0) {
+        progress.value = Math.round((completedTasks.value.length / allTasks.value.length)*100)
+        const projectId = await getProject();
+        console.log(projectId);
+        
+        try {
+            const response = await axios.put('/api/updateProgress',{
+            progress:progress.value,
+            id:projectId
+            });
+            if(response.data.status){
+                successMsg(response.data.message)
+            }
+        } catch (error) {
+            if(error.response){
+                showError(error.response.data.message)
+            }
+        }
+    } else {
+        progress.value = 0
+    }
+}
 const getProject = async() =>{
     try {
-        const response = await axios.get(`/api/getProject?slug=${slug}`);
+        const response = await axios.get(`/api/getProjectBySlug?slug=${slug}`);
         if(response.data.status){
             project.value= response.data.projects;
-            return project.value.id;             
+            
+            return project.value.id;  
+                       
         }
     } catch (error) {
         if(error.response){
@@ -331,14 +367,30 @@ const getProject = async() =>{
         }
     }
 }
+const ListAllTask = async() =>{
+  const id = await getProject();
+  try {
+    const response = await axios.get(`/api/getAllTasks?projectId=${id}`);
+    if(response.data.status){
+        allTasks.value = response.data.tasks;
+        calculateProgress()
+        loading.value=true
+    }
+  } catch (error) {
+    if(error.response){
+        showError(error.response.data.message);      
+    }
+  }   
+}
 const ListTask = async() =>{
   const id = await getProject();
   try {
     const response = await axios.get(`/api/getTasks?projectId=${id}`);
     if(response.data.status){
         tasks.value = response.data.tasks;
+        calculateProgress()
         loading.value=true
-        return tasks.value      
+           
     }
   } catch (error) {
     if(error.response){
@@ -366,8 +418,6 @@ const ListCompletedTasks = async() =>{
     const response = await axios.get(`/api/getCompletedTasks?projectId=${id}`);
     if(response.data.status){
         completedTasks.value = response.data.tasks;
-        console.log(completedTasks.value);
-        return completedTasks.value
     }
    } catch (error) {
     if(error.response){
@@ -459,14 +509,19 @@ const AddTask = async() =>{
     try {
         const response = await axios.post('/api/createtask',{...taskObject});
         const addedTask = await ListTask();
+        const secaddedTask = await ListAllTask()
         if(response.data.status){
           successMsg(response.data.message);
-          tasks.value.unshift()      
+          loading.value.preventDefault
+          tasks.value.unshift()
+          allTasks.value.unshift()
+          calculateProgress()     
         }
     } catch (error) {
        if(error.response){
             if(error.response.status === 422){
                 showError(error.response.data.message)
+                loading.value.false
             }
         } 
     }   
@@ -478,7 +533,8 @@ const Delete = async(id)=>{
     if(response.data.status){
     successMsg(response.data.message)
     tasks.value = tasks.value.filter(task => task.id !== id);
-    
+    allTasks.value = allTasks.value.filter(task => task.id !== id);
+    calculateProgress()
   }
    } 
    catch (error) {
@@ -507,6 +563,29 @@ const handleDragOverCompleted = (event) =>{
     
     
 }
+const handleDropStart = async(event) =>{
+  event.preventDefault();
+  if(draggedTask){   
+    try {
+        const response = await axios.post('/api/tasks/completedtonotstarted',{taskid:draggedTask.value.id});
+        const StartedTask = await ListTask()
+        if(response.data.status){
+            successMsg(response.data.message)
+            pendingTasks.value = pendingTasks.value.filter(task => task.id !== draggedTask.value.id)
+            completedTasks.value = completedTasks.value.filter(task => task.id !== draggedTask.value.id
+            )
+            calculateProgress()
+            tasks.value.unshift();              
+        }
+    } catch (error) {
+        if(error.response){
+            if(error.response.status === 422){
+                showError(error.response.message)
+            }
+        }
+    } 
+  }
+}
 const handleDrop = async(event) =>{
   event.preventDefault();
   if(draggedTask){   
@@ -516,6 +595,8 @@ const handleDrop = async(event) =>{
         if(response.data.status){
             successMsg(response.data.message)
             tasks.value = tasks.value.filter(task => task.id !== draggedTask.value.id)
+            completedTasks.value = completedTasks.value.filter(task => task.id !== draggedTask.value.id)
+            calculateProgress()
             pendingTasks.value.unshift();              
         }
     } catch (error) {
@@ -535,7 +616,9 @@ const handleDropCompleted = async(event) =>{
         const completedTask = await ListCompletedTasks();
         if(response.data.status){
             pendingTasks.value = pendingTasks.value.filter(task => task.id !== draggedTask.value.id)
+            tasks.value = tasks.value.filter(task => task.id !== draggedTask.value.id)
             successMsg(response.data.message)
+            calculateProgress()
             completedTasks.value.unshift();
         }
     } 

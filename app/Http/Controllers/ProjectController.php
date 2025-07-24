@@ -169,7 +169,7 @@ class ProjectController extends Controller
         'progress' => $taskprogress->progress
        ]);
     }
-     public function getProject(Request $request){
+     public function getProjectBySlug(Request $request){
         $slug = $request->slug;
         $projects = Project::with(['tasks.taskmembers.member','taskProgress'])
         ->where('projects.slug',$slug)->first();
@@ -183,6 +183,21 @@ class ProjectController extends Controller
             'status' => true,
             'message' => 'Projects got succesfully',
             'projects' => $projects
+        ]);
+    }
+    public function getProjectById(Request $request){
+        $projectId = $request->id;
+        $project = Project::where('id',$projectId)->first();
+        if(!$projectId){
+          return response()->json([
+            'status' => false,
+            'message' => 'no projects',
+        ]);   
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Projects got succesfully',
+            'project' => $project
         ]);
     }
 }

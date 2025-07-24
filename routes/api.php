@@ -29,7 +29,8 @@ Route::controller(ProjectController::class)->group(function(){
     Route::post('/projectPinned/{id}',[ProjectController::class,'pinned']);
     Route::get('/getChartData',[ProjectController::class,'getProjectData']);
     Route::get('/getPinnedProject',[ProjectController::class,'getPinnedProject']);
-    Route::get('/getProject',[ProjectController::class,'getProject']);
+    Route::get('/getProjectBySlug',[ProjectController::class,'getProjectBySlug']);
+    Route::get('/getProjectById',[ProjectController::class,'getProjectById']);
 });
 Route::controller(MemberController::class)->group(function(){
     Route::post('/createMember',[MemberController::class,'create']);
@@ -41,6 +42,8 @@ Route::controller(MemberController::class)->group(function(){
 Route::controller(TaskController::class)->group(function(){
    Route::post('/createtask',[TaskController::class,'createTask']);
    Route::post('/deleteTask',[TaskController::class,'deleteTask']);
+   Route::put('/updateProgress',[TaskController::class,'updateProgress']);
+   Route::get('/getAllTasks',[TaskController::class,'listAllTask']);
    Route::get('/getTasks',[TaskController::class,'listTask']);
    Route::get('/getPendingTasks',[TaskController::class,'listPendingTask']);
    Route::get('/getCompletedTasks',[TaskController::class,'listCompletedTask']);   

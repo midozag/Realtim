@@ -1,7 +1,7 @@
 <template>
    <AdminLayout>
        <div class="project-dashboard p-6 bg-gray-50 min-h-screen">
-        <h1 class="text-2xl font-semibold text-gray-800 mb-6">Project :</h1>
+        <h1 class="text-2xl font-semibold text-gray-800 mb-6">Project :{{ project?.name }}</h1>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
               <h2 class="text-lg font-medium text-gray-600 mb-4">Total Projects</h2>
@@ -51,12 +51,15 @@ const pendingTasks = ref(0);
 const completedTasks = ref(0);
 const taskProgress = ref(0);
 const pinnedProject = ref();
+const project = ref();
 const chartData = ref({tasks:[],progress:0});
 onMounted(async()=>{
    
   
     getCount();
     pinnedProject.value = await getProjectPinned()
+    
+    getProject()
     getChartData(pinnedProject.value);
     const channel = window.Echo.channel('countProject');
     channel.listen('NewProjectCreated', (e) => {
@@ -68,7 +71,6 @@ onMounted(async()=>{
      
    // Test connection status
    channel.subscribed(() => {
-     console.log('✅ Successfully subscribed to countProject channel');
    });
 })
 
@@ -187,5 +189,23 @@ const getChartData = async(id) =>{
   taskChartSeries.value = [pendingTasks.value, completedTasks.value];
   taskProgress.value = response.data.progress;
   progressChartSeries.value = [taskProgress.value];
+}
+
+const getProject = async() =>{
+  const projectId= pinnedProject.value;
+  try {
+    const response = await axios.get(`/api/getProjectById?id=${projectId}`)
+    if(response.data.status){
+       project.value = response.data.project;
+       console.log(project.value);
+       
+    }
+  } catch (error) {
+    if(error.response){
+      showError(error.response.data.message)
+    }
+  }
+  
+  
 }
 </script>

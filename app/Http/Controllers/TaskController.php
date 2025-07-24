@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\TaskMember;
+use App\Models\TaskProgress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -47,6 +48,23 @@ class TaskController extends Controller
             'status' => true,
             'message' => 'Task added succesfully',
             'task' => $result['task']
+        ]);
+    }
+    public function listAllTask(Request $request){
+        $projectId = $request->projectId;
+        $tasks = Task::with('taskmembers.member')
+        ->where('projectId',$projectId)
+        ->get();
+        if(count($tasks) === 0){
+            return response()->json([
+                'status' => false,
+                'message' => 'No tasks existed',
+            ],422);
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Tasks returned succesfully',
+            'tasks' => $tasks
         ]);
     }
     public function listTask(Request $request){
@@ -174,6 +192,31 @@ class TaskController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to not_started'
+        ]);
+    }
+    public function updateProgress(Request $request){
+        $validator = Validator::make($request->all(),[
+            'progress' => 'required|numeric',
+            'id' => 'required|numeric'
+           ]);
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation errors',
+                'errors' => $validator->errors()
+            ],422);}
+        $task_progress = TaskProgress::where('projectId',$request->id)->first();
+        $task_progress->update([
+            'progress' => $request->progress
+        ]);
+        if(!$task_progress){
+        return response()->json([
+            'status' => false,
+            'message' => 'No task exist'
+        ],404);}
+        return response()->json([
+            'status' => true,
+            'message' => 'progress updated',
         ]);
     }
 }
