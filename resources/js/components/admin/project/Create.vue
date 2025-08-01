@@ -46,7 +46,7 @@
                          required>
                  </div>
              </div>
-             <button :disabled="loading" type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-200 ease-in-out">
+             <button :disabled="loading" type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-500 font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline   hover:scale-105 transition-transform duration-200 ease-in-out">
                  <span v-if="loading" class="absolute left-0 inset-y-0 flex items-center pl-3">
                     <svg class="animate-spin h-5 w-5 text-indigo-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

@@ -25,10 +25,12 @@
            <div class="hidden sm:ml-6 sm:flex sm:items-center">
             <div class="ml-3 relative">
              <div>
-                <button @click="isProfileMenuOpen = !isProfileMenuOpen" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                   {{ user.name }}
-                </button>
-             </div>
+    <button 
+        @click="isProfileMenuOpen = !isProfileMenuOpen" 
+        class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-8 h-8 sm:w-10 sm:h-10 transition-colors duration-200">
+        {{ user.name?.[0]?.toUpperCase() }}
+    </button>
+</div>
              <div
              v-if="isProfileMenuOpen"
              class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
@@ -156,7 +158,6 @@ const logout = async() =>{
 const navItems = [
     {name:'Dashboard',path:'/app/dashboard'},
     {name:'Projects',path:'/app/projects'},
-    {name:'Tasks',path:'/app/tasks'},
-    {name:'Memebers',path:'/app/members'},
+    {name:'Members',path:'/app/members'},
 ]
 </script>

@@ -25,6 +25,13 @@ class ProjectController extends Controller
              'errors' => $validator->errors()
          ],422);
         }
+        $existedProject = Project::where('name',$request->name)->first();
+        if($existedProject){
+            return response()->json([
+              'status' => false,
+              'message' => "Project {$existedProject->name} exist"
+            ],500);
+        };
         $result =  DB::transaction(function() use ($request){
             $project = Project::create([
                 'name' => $request->name,
@@ -150,23 +157,26 @@ class ProjectController extends Controller
     public function getProjectData(Request $request){
 
       $projectId = $request->projectId; 
-      $task = Task::where('projectId',$projectId)->get();
-      $taskprogress = TaskProgress::where('projectId',$projectId)
-       ->select('progress')
-       ->first();
-      $pending = 0;
-      $completed = 0;
-      foreach($task as $row){
-        if($row->status == Task::PENDING){
-          $pending++;
-        }
-        if($row->status == Task::COMPLETED){
-          $completed++;
-        }
-      }
+      $pendingTasks = Task::where('projectId',$projectId)
+                      ->where('status',Task::PENDING)
+                      ->count();
+      $completedTasks = Task::where('projectId',$projectId)
+                      ->where('status',Task::COMPLETED)
+                      ->count();
+      $notstartedTasks = Task::where('projectId',$projectId)
+                      ->where('status',Task::NOT_STARTED)
+                      ->count(); 
+      $allTasks = $pendingTasks + $completedTasks + $notstartedTasks; 
+      $progress = round(($completedTasks/$allTasks)*100);
       return response([
-        'tasks' => [$pending,$completed],
-        'progress' => $taskprogress->progress
+        'tasks' => [$pendingTasks,$completedTasks],
+        'progress' => $progress,
+        'counts' => [
+             'pending' => $pendingTasks,
+             'completed' => $completedTasks,
+             'notstarted' => $notstartedTasks,
+             'alltasks' => $allTasks
+        ]
        ]);
     }
      public function getProjectBySlug(Request $request){

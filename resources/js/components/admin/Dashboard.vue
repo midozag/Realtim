@@ -51,6 +51,7 @@ const pendingTasks = ref(0);
 const completedTasks = ref(0);
 const taskProgress = ref(0);
 const pinnedProject = ref();
+const taskStatusChannel = ref(null);
 const project = ref();
 const chartData = ref({tasks:[],progress:0});
 onMounted(async()=>{
@@ -61,17 +62,7 @@ onMounted(async()=>{
     
     getProject()
     getChartData(pinnedProject.value);
-    const channel = window.Echo.channel('countProject');
-    channel.listen('NewProjectCreated', (e) => {
-       totalProjects.value = e.countProject;
-     })
-     .error((error) => {
-       console.error('❌ Channel error:', error);
-     });
-     
-   // Test connection status
-   channel.subscribed(() => {
-   });
+    setupRealTimeListeners()
 })
 
 const tasksChartOptions = ref({
@@ -156,6 +147,38 @@ const progressChartOptions = ref({
   }
 })
 const progressChartSeries = ref([taskProgress.value])
+
+const setupRealTimeListeners = ()=>{
+    const channel = window.Echo.channel('countProject');
+    channel.listen('NewProjectCreated', (e) => {
+       totalProjects.value = e.countProject;
+     })
+     .error((error) => {
+       console.error('❌ Channel error:', error);
+     });
+     if(pinnedProject.value){
+      taskStatusChannel.value = window.Echo.channel(`project.${pinnedProject.value}`);
+      taskStatusChannel.value.listen('TaskStatusUpdated',(e)=>{
+        console.log('Task status updated:',e);
+        getChartData(pinnedProject.value);
+        
+      })
+      .error((error)=>{
+        console.error('❌ Task status channel error:', error);
+        
+      });
+      taskStatusChannel.value.listen('TaskCreated', (e) => {
+            console.log('➕ New task created:', e);
+            getChartData(pinnedProject.value);
+        });
+      taskStatusChannel.value.listen('TaskDeleted', (e) => {
+            console.log('➕ New task deleted:', e);
+            getChartData(pinnedProject.value);
+        });
+     }
+    
+         
+}
 
 const getCount = async() =>{
    try {

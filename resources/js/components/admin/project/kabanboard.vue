@@ -149,7 +149,7 @@
         </div>
             </div> 
             
-            <div v-if="loading">
+            <div v-if="!loading">
                 <div  
              v-for="task in tasks"
              v-bind:key="task.id"
@@ -176,14 +176,14 @@
                         </div>
                         
                     </div>
-                    <div  class="text-sm sm:text-sm text-gray-600 ml-2">{{ task.taskmembers?.length }} Membres</div>
+                    <div  class="text-sm sm:text-sm text-gray-600 ml-2">{{ task?.taskmembers?.length }} Membres</div>
                 </div>
               </div>
               </form>
             </div>
             </div>
             <div v-else>
-
+               
             </div>
             
            
@@ -321,13 +321,9 @@ onMounted(()=>{
   ListPendingTask()
   ListCompletedTasks()
   ListAllTask()
-   
   getProject()
   initFlowbite()
-  getMembers()
-  
-  
-  
+  getMembers() 
 })
 const calculateProgress = async() =>{
     if (allTasks.value.length > 0) {
@@ -340,13 +336,9 @@ const calculateProgress = async() =>{
             progress:progress.value,
             id:projectId
             });
-            if(response.data.status){
-                successMsg(response.data.message)
-            }
+            
         } catch (error) {
-            if(error.response){
-                showError(error.response.data.message)
-            }
+            
         }
     } else {
         progress.value = 0

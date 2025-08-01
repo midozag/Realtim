@@ -9,6 +9,8 @@ use App\Models\TaskProgress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use App\Events\TaskCreated;
+use App\Events\TaskDeleted;
 
 class TaskController extends Controller
 {
@@ -40,10 +42,12 @@ class TaskController extends Controller
                     'memberId' => $members[$i]
                 ]);
             }
+            TaskCreated::dispatch($task);
             return [
                 'task' => $task
             ];
         });
+        
         return response()->json([
             'status' => true,
             'message' => 'Task added succesfully',
@@ -137,6 +141,7 @@ class TaskController extends Controller
             'status' => false,
             'message' => 'No task exist'
         ],404);}
+        TaskDeleted::dispatch($task);
         $task->delete();
         return response()->json([
             'status' => true,
@@ -172,6 +177,7 @@ class TaskController extends Controller
             'status' => true,
             'message' => 'Task updated succesfully to completed'
         ]);
+        
     }
     public function PendingToNotstarted(Request $request){
         Task::changeStatus($request->taskid,Task::NOT_STARTED);;

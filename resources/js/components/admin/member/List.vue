@@ -39,9 +39,13 @@
                 v-bind:key="member.id"
                 class="hover:bg-gray-50 transition-colors duration-150">
                   <td class="flex gap-2 items-center px-6 py-4 whitespace-nowrap">
-                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
-                        ME
-                    </div>
+                    <div>
+    <button 
+        @click="isProfileMenuOpen = !isProfileMenuOpen" 
+        class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-8 h-8 sm:w-10 sm:h-10 transition-colors duration-200">
+        {{ member.name?.[0]?.toUpperCase() }}
+    </button>
+</div>
                     <div class="text-sm font-medium text-gray-900">
                          {{ member.name }}
                     </div>
