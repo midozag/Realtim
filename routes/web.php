@@ -13,3 +13,8 @@ Route::get('/app/{any}',function(){
 
 use App\Events\NewProjectCreated;
 
+Route::get('/test-broadcast', function () {
+    broadcast(new MessageSent('Test message from route!'));
+    return 'Event broadcasted!';
+});
+

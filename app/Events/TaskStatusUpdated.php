@@ -35,7 +35,8 @@ class TaskStatusUpdated implements ShouldBroadcast
             new Channel('project.'. $this->projectId),
         ];
     }
-    public function broadcastWith(){
+    public function broadcastWith(): array
+    {
         return [
           'projectId' => $this->projectId,
           'taskData' => $this->taskData

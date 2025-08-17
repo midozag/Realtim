@@ -11,9 +11,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 
-class UserCreated
+class UserCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public $user;
 
     /**
      * Create a new event instance.
@@ -31,7 +33,14 @@ class UserCreated
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('users'),
+        ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'user' => $this->user
         ];
     }
 }

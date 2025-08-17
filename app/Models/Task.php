@@ -25,20 +25,17 @@ class Task extends Model
         return $this->hasMany(TaskMember::class,'taskId');
     }
     public static function changeStatus($taskId,$status){
-        $task = Task::find($taskId);
+        $task = Task::with('taskmembers.member')->find($taskId);
         if($task){
           $oldStatus = $task->status;
           $task->update([
             'status' => $status
           ]);
+          
+          // Reload task with updated status
+          $task->refresh();
         
-        broadcast(new TaskStatusUpdated($task->projectId,
-        [
-         'taskId' => $taskId,
-         'oldStatus' => $oldStatus,
-         'newStatus' => $status,
-         'projectId' => $task->projectId 
-        ]));
+        broadcast(new TaskStatusUpdated($task->projectId, $task));
         return $task;
        }
        return false;

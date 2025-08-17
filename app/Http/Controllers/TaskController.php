@@ -135,12 +135,16 @@ class TaskController extends Controller
                 'message' => 'Validation errors',
                 'errors' => $validator->errors()
             ],422);}
-       $task = Task::findOrFail($request->id);
+       $task = Task::with('taskmembers.member')->findOrFail($request->id);
        if(!$task){
         return response()->json([
             'status' => false,
             'message' => 'No task exist'
         ],404);}
+        
+        // Create a copy of task data before deletion
+        $taskData = $task->toArray();
+        
         TaskDeleted::dispatch($task);
         $task->delete();
         return response()->json([

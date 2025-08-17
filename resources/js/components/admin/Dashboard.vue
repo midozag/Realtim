@@ -220,7 +220,6 @@ const getProject = async() =>{
     const response = await axios.get(`/api/getProjectById?id=${projectId}`)
     if(response.data.status){
        project.value = response.data.project;
-       console.log(project.value);
        
     }
   } catch (error) {
