@@ -55,14 +55,14 @@ const taskStatusChannel = ref(null);
 const project = ref();
 const chartData = ref({tasks:[],progress:0});
 onMounted(async()=>{
-   
-  
     getCount();
     pinnedProject.value = await getProjectPinned()
     
-    getProject()
-    getChartData(pinnedProject.value);
-    setupRealTimeListeners()
+    if(pinnedProject.value) {
+        getProject()
+        getChartData(pinnedProject.value);
+        setupRealTimeListeners()
+    }
 })
 
 const tasksChartOptions = ref({
@@ -148,6 +148,7 @@ const progressChartOptions = ref({
 })
 const progressChartSeries = ref([taskProgress.value])
 
+
 const setupRealTimeListeners = ()=>{
     const channel = window.Echo.channel('countProject');
     channel.listen('NewProjectCreated', (e) => {
@@ -179,6 +180,8 @@ const setupRealTimeListeners = ()=>{
     
          
 }
+         
+
 
 const getCount = async() =>{
    try {

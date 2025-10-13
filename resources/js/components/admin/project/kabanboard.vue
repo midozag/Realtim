@@ -289,21 +289,72 @@ const taskObject = reactive({
 });
 let selectedMembers = ref([]);
 
-onMounted(()=>{
+onMounted(async()=>{
+  const projectId = await getProject()
+  console.log('Project ID from getProject():', projectId);
   ListTask()
   ListPendingTask()
   ListCompletedTasks()
   ListAllTask()
    
-  getProject()
   initFlowbite()
   getMembers()
   
-  
-  
+  // Setup real-time listeners
+  if (projectId && window.Echo) {
+    console.log('Setting up Echo listeners for project:', projectId);
+    
+    const channel = window.Echo.channel(`project.${projectId}`);
+    
+    // Listen for all events on this channel for debugging
+    channel.listenToAll((eventName, data) => {
+      console.log('Received event:', eventName, data);
+    });
+    
+    channel.listen('task.created', (e) => {
+        console.log('Task created event received:', e);
+        tasks.value.unshift(e.task);
+        allTasks.value.unshift(e.task);
+        calculateProgress();
+      })
+      .listen('TaskStatusUpdated', (e) => {
+        console.log('Task status updated event received:', e);
+        // Refresh all task lists to reflect status change
+        ListTask();
+        ListPendingTask();
+        ListCompletedTasks();
+        ListAllTask();
+      })
+      .listen('TaskDeleted', (e) => {
+        console.log('Task deleted event received:', e);
+        // Remove from all task arrays
+        tasks.value = tasks.value.filter(task => task.id !== e.task.id);
+        pendingTasks.value = pendingTasks.value.filter(task => task.id !== e.task.id);
+        completedTasks.value = completedTasks.value.filter(task => task.id !== e.task.id);
+        allTasks.value = allTasks.value.filter(task => task.id !== e.task.id);
+        calculateProgress();
+      });
+  } else {
+    console.log('Echo not available or projectId missing:', { projectId, Echo: !!window.Echo });
+  }
 })
+const ListAllTask = async() =>{
+  const id = await getProject();
+  try {
+    const response = await axios.get(`/api/getAllTasks?projectId=${id}`);
+    if(response.data.status){
+        allTasks.value = response.data.tasks;
+        calculateProgress()
+        loading.value=true
+    }
+  } catch (error) {
+    if(error.response){
+        showError(error.response.data.message);      
+    }
+  }   
+}
 const calculateProgress = async() =>{
-    if (allTasks.value.length > 0) {
+    if (allTasks.value && allTasks.value.length > 0) {
         progress.value = Math.round((completedTasks.value.length / allTasks.value.length)*100)
         const projectId = await getProject();
         console.log(projectId);
@@ -313,9 +364,7 @@ const calculateProgress = async() =>{
             progress:progress.value,
             id:projectId
             });
-            if(response.data.status){
-                successMsg(response.data.message)
-            }
+            
         } catch (error) {
             if(error.response){
                 showError(error.response.data.message)
@@ -340,21 +389,7 @@ const getProject = async() =>{
         }
     }
 }
-const ListAllTask = async() =>{
-  const id = await getProject();
-  try {
-    const response = await axios.get(`/api/getAllTasks?projectId=${id}`);
-    if(response.data.status){
-        allTasks.value = response.data.tasks;
-        calculateProgress()
-        loading.value=true
-    }
-  } catch (error) {
-    if(error.response){
-        showError(error.response.data.message);      
-    }
-  }   
-}
+
 const ListTask = async() =>{
   const id = await getProject();
   try {

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Realtime Test</title>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+</head>
+<body>
+    <h1>Realtime Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="events"></div>
+    
+    <script>
+        // Test direct Pusher connection to Reverb
+        const pusher = new Pusher('z6jspkek2dzh9a3vnlig', {
+            wsHost: 'localhost',
+            wsPort: 8080,
+            forceTLS: false,
+            disableStats: true,
+            enabledTransports: ['ws'],
+            cluster: 'mt1'
+        });
+
+        // Add more detailed logging
+        pusher.connection.bind('state_change', (states) => {
+            console.log('Connection state changed:', states.previous, '->', states.current);
+            document.getElementById('status').innerHTML = 'State: ' + states.current;
+        });
+
+        pusher.connection.bind('connecting', () => {
+            console.log('Connecting to WebSocket...');
+        });
+
+        pusher.connection.bind('unavailable', () => {
+            console.log('Connection unavailable');
+        });
+
+        pusher.connection.bind('failed', () => {
+            console.log('Connection failed');
+        });
+
+        const channel = pusher.subscribe('project.3');
+        
+        pusher.connection.bind('connected', () => {
+            document.getElementById('status').innerHTML = '✅ Connected to Reverb!';
+            console.log('✅ Connected to Reverb');
+        });
+
+        pusher.connection.bind('error', (error) => {
+            document.getElementById('status').innerHTML = '❌ Connection failed: ' + error;
+            console.error('❌ Connection error:', error);
+        });
+
+        channel.bind('TaskStatusUpdated', (data) => {
+            const eventDiv = document.createElement('div');
+            eventDiv.innerHTML = '🎉 Event received: ' + JSON.stringify(data);
+            document.getElementById('events').appendChild(eventDiv);
+            console.log('🎉 Event received:', data);
+        });
+
+        console.log('Test page loaded. Connecting to Reverb...');
+    </script>
+</body>
+</html>

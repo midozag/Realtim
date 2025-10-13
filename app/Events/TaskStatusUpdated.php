@@ -22,6 +22,12 @@ class TaskStatusUpdated implements ShouldBroadcast
     {
         $this->projectId=$projectId;
         $this->taskData=$taskData;
+
+         \Log::info('TaskStatusUpdated Event Constructor Called', [
+            'projectId' => $projectId,
+            'taskData' => $taskData,
+            'channel' => 'project.' . $projectId
+        ]);
     }
 
     /**
@@ -31,12 +37,21 @@ class TaskStatusUpdated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        \Log::info('TaskStatusUpdated broadcastOn called', [
+            'channel' => 'project.' . $this->projectId
+        ]);
         return [
             new Channel('project.'. $this->projectId),
         ];
     }
     public function broadcastWith(): array
     {
+        \Log::info('TaskStatusUpdated broadcastWith called', [
+            'data' => [
+                'projectId' => $this->projectId,
+                'taskData' => $this->taskData
+            ]
+        ]);
         return [
           'projectId' => $this->projectId,
           'taskData' => $this->taskData

@@ -24,6 +24,7 @@ class TaskCreated implements ShouldBroadcast
     {
         $this->projectId = $task->projectId;
         $this->task = $task;
+        \Log::info('TaskCreated event constructed for project: ' . $this->projectId);
     }
 
     /**
@@ -33,8 +34,11 @@ class TaskCreated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        $channel = 'project.' . $this->projectId;
+        \Log::info('Broadcasting TaskCreated on channel: ' . $channel);
+    
         return [
-            new Channel('project.'. $this->projectId),
+          new Channel($channel),
         ];
     }
     public function broadcastWith(): array

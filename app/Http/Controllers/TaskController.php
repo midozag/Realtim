@@ -11,11 +11,12 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Events\TaskCreated;
 use App\Events\TaskDeleted;
+use App\Events\TaskStatusUpdated;
 
 class TaskController extends Controller
 {
     public function createTask(Request $request){
-        $validator = Validator::make($request->all(),[
+                $validator = Validator::make($request->all(),[
             'name' => 'required',
             'projectId' => 'required|numeric',
             'memberIds' => 'required|array',
@@ -42,18 +43,18 @@ class TaskController extends Controller
                     'memberId' => $members[$i]
                 ]);
             }
-            TaskCreated::dispatch($task);
+            event(new TaskCreated($task));
             return [
                 'task' => $task
             ];
         });
-        
         return response()->json([
             'status' => true,
             'message' => 'Task added succesfully',
             'task' => $result['task']
         ]);
     }
+    
     public function listAllTask(Request $request){
         $projectId = $request->projectId;
         $tasks = Task::with('taskmembers.member')
@@ -163,6 +164,8 @@ class TaskController extends Controller
         ],422);  
         }
         Task::changeStatus($request->taskid,Task::PENDING);
+        $task = Task::find($request->taskid);
+        TaskStatusUpdated::dispatch($task->projectId, $task);
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to pending'
@@ -170,13 +173,17 @@ class TaskController extends Controller
     }
     public function NotStartedToCompleted(Request $request){
         Task::changeStatus($request->taskid,Task::COMPLETED);
+        $task = Task::find($request->taskid);
+        TaskStatusUpdated::dispatch($task->projectId, $task);
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to completed'
         ]);
     }
     public function PendingToCompleted(Request $request){
-        Task::changeStatus($request->taskid,Task::COMPLETED);;
+        Task::changeStatus($request->taskid,Task::COMPLETED);
+        $task = Task::find($request->taskid);
+        TaskStatusUpdated::dispatch($task->projectId, $task);
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to completed'
@@ -184,14 +191,18 @@ class TaskController extends Controller
         
     }
     public function PendingToNotstarted(Request $request){
-        Task::changeStatus($request->taskid,Task::NOT_STARTED);;
+        Task::changeStatus($request->taskid,Task::NOT_STARTED);
+        $task = Task::find($request->taskid);
+        TaskStatusUpdated::dispatch($task->projectId, $task);
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to not_started'
         ]);
     }
     public function CompletedToPending(Request $request){
-        Task::changeStatus($request->taskid,Task::PENDING);;
+        Task::changeStatus($request->taskid,Task::PENDING);
+        $task = Task::find($request->taskid);
+        TaskStatusUpdated::dispatch($task->projectId, $task);
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to pending'
@@ -199,6 +210,8 @@ class TaskController extends Controller
     }
     public function CompletedToNotstarted(Request $request){
         Task::changeStatus($request->taskid,Task::NOT_STARTED);
+        $task = Task::find($request->taskid);
+        TaskStatusUpdated::dispatch($task->projectId, $task);
         return response()->json([
             'status' => true,
             'message' => 'Task updated succesfully to not_started'

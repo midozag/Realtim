@@ -14,3 +14,7 @@ Broadcast::channel('test-channel', function () {
 Broadcast::channel('countProject', function () {
     return true;
 });
+
+Broadcast::channel('project.{projectId}', function () {
+    return true;
+});

@@ -111,10 +111,10 @@ class AuhtController extends Controller
         ]);
        }
        $token = $user->createToken('google-auth')->plainTextToken;
-       return redirect()->away('http://localhost:8000/app/google?token='.$token.'&userId='.$user->id);
+       return redirect()->away(env('APP_URL').'/app/google?token='.$token.'&userId='.$user->id);
       }
       catch(error){
-       return redirect()->away('http://localhost:8000/app/register?error=Unabletologintogoogle');
+       return redirect()->away(env('APP_URL').'/app/register?error=Unabletologintogoogle');
       }
     }
     public function getUser($id){
