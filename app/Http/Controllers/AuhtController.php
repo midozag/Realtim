@@ -113,7 +113,7 @@ class AuhtController extends Controller
        $token = $user->createToken('google-auth')->plainTextToken;
        return redirect()->away(env('APP_URL').'/app/google?token='.$token.'&userId='.$user->id);
       }
-      catch(error){
+      catch(\Exception $e){
        return redirect()->away(env('APP_URL').'/app/register?error=Unabletologintogoogle');
       }
     }

@@ -151,17 +151,17 @@ const register = async() =>{
             if(error.response.data.errors){
                 const errors = error.response.data.errors;
                 showError(Object.values(errors).flat().join('\n'));
-                
+
             }
             else if(error.response.data.message){
-                showError(Object.values(errors).flat().join('\n')) ;
+                showError(error.response.data.message) ;
             }
             else{
-                showError(Object.values(errors).flat().join('\n'));
+                showError('An error occurred during registration');
             }
         }
         else{
-            showError(Object.values(errors).flat().join('\n'));
+            showError('Network error. Please try again.');
         }
     }
     finally{
