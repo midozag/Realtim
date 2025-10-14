@@ -18,12 +18,18 @@ Broadcast::routes(['prefix' => 'api', 'middleware' => ['api']]);
 
 Route::get('/test-broadcast/{projectId}', function($projectId) {
     $task = Task::first(); // Get any task
-    
+
     // Test all three events
     event(new \App\Events\TaskCreated($task));
     event(new \App\Events\TaskDeleted($task));
     event(new \App\Events\TaskStatusUpdated($projectId, $task));
-    
+
     return 'Events dispatched - check your console!';
+});
+
+Route::get('/send-test-message', function() {
+    $message = 'Test message sent at ' . now()->format('H:i:s');
+    event(new MessageSent($message));
+    return response()->json(['status' => 'Message sent!', 'message' => $message]);
 });
 
