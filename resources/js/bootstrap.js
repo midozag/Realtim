@@ -8,12 +8,13 @@ import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
 
-window.Echo = new Echo({
+// Reverb configuration with fallbacks
+const reverbConfig = {
     broadcaster: 'reverb',
     key: import.meta.env.VITE_REVERB_APP_KEY || 'z6jspkek2dzh9a3vnlig',
     wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
-    wsPort: import.meta.env.VITE_REVERB_PORT || 443,
-    wssPort: import.meta.env.VITE_REVERB_PORT || 443,
+    wsPort: parseInt(import.meta.env.VITE_REVERB_PORT) || 443,
+    wssPort: parseInt(import.meta.env.VITE_REVERB_PORT) || 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
@@ -34,4 +35,13 @@ window.Echo = new Echo({
             }
         };
     },
+};
+
+console.log('Echo config:', {
+    key: reverbConfig.key,
+    wsHost: reverbConfig.wsHost,
+    wsPort: reverbConfig.wsPort,
+    scheme: import.meta.env.VITE_REVERB_SCHEME
 });
+
+window.Echo = new Echo(reverbConfig);
