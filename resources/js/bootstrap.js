@@ -8,40 +8,14 @@ import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
 
-// Reverb configuration with fallbacks
-const reverbConfig = {
+window.Echo = new Echo({
     broadcaster: 'reverb',
-    key: import.meta.env.VITE_REVERB_APP_KEY || 'z6jspkek2dzh9a3vnlig',
-    wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
-    wsPort: parseInt(import.meta.env.VITE_REVERB_PORT) || 443,
-    wssPort: parseInt(import.meta.env.VITE_REVERB_PORT) || 443,
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'https') === 'https',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST,
+    wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+    wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
-    // Leave wsPath empty - Reverb uses /app/{key} by default
-    authorizer: (channel, options) => {
-        return {
-            authorize: (socketId, callback) => {
-                window.axios.post('/api/broadcasting/auth', {
-                    socket_id: socketId,
-                    channel_name: channel.name
-                })
-                .then(response => {
-                    callback(false, response.data);
-                })
-                .catch(error => {
-                    callback(true, error);
-                });
-            }
-        };
-    },
-};
-
-console.log('Echo config:', {
-    key: reverbConfig.key,
-    wsHost: reverbConfig.wsHost,
-    wsPort: reverbConfig.wsPort,
-    scheme: import.meta.env.VITE_REVERB_SCHEME
+    path: import.meta.env.VITE_REVERB_PATH ?? '/app',
 });
-
-window.Echo = new Echo(reverbConfig);
