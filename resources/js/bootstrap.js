@@ -18,7 +18,7 @@ const reverbConfig = {
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
-    wsPath: import.meta.env.VITE_REVERB_PATH || '/reverb',
+    // Leave wsPath empty - Reverb uses /app/{key} by default
     authorizer: (channel, options) => {
         return {
             authorize: (socketId, callback) => {
