@@ -149,37 +149,48 @@ const progressChartOptions = ref({
 const progressChartSeries = ref([taskProgress.value])
 
 
-const setupRealTimeListeners = ()=>{
-    const channel = window.Echo.channel('countProject');
-    channel.listen('NewProjectCreated', (e) => {
-       totalProjects.value = e.countProject;
-     })
-     .error((error) => {
-       console.error('❌ Channel error:', error);
-     });
-     if(pinnedProject.value){
-      taskStatusChannel.value = window.Echo.channel(`project.${pinnedProject.value}`);
-      taskStatusChannel.value.listen('TaskStatusUpdated',(e)=>{
-        console.log('Task status updated:',e);
-        getChartData(pinnedProject.value);
-        
-      })
-      .error((error)=>{
-        console.error('❌ Task status channel error:', error);
-        
-      });
-      taskStatusChannel.value.listen('TaskCreated', (e) => {
-            console.log('➕ New task created:', e);
+const setupRealTimeListeners = () => {
+      const channel = window.Echo.channel('countProject');
+      channel.listen('NewProjectCreated', (e) => {
+         totalProjects.value = e.countProject;
+       })
+       .error((error) => {
+         console.error('❌ Channel error:', error);
+       });
+
+       if(pinnedProject.value) {
+        taskStatusChannel.value =
+  window.Echo.channel(`project.${pinnedProject.value}`);
+
+        // Use listenToAll to catch all events and handle them
+  properly
+        taskStatusChannel.value.listenToAll((eventName, data) =>
+  {
+          console.log('Dashboard received event:', eventName,
+  data);
+
+          if (eventName === '.TaskStatusUpdated') {
+            console.log('Task status updated:', data);
             getChartData(pinnedProject.value);
-        });
-      taskStatusChannel.value.listen('TaskDeleted', (e) => {
-            console.log('➕ New task deleted:', e);
+          }
+
+          if (eventName === 'TaskCreated') {
+            console.log('➕ New task created:', data);
             getChartData(pinnedProject.value);
+          }
+
+          if (eventName === 'TaskDeleted' || eventName ===
+  '.TaskDeleted') {
+            console.log('🗑️ Task deleted:', data);
+            getChartData(pinnedProject.value);
+          }
         });
-     }
-    
-         
-}
+
+        taskStatusChannel.value.error((error) => {
+          console.error('❌ Task status channel error:', error);
+        });
+       }
+  }
          
 
 
