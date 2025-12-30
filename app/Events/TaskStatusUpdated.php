@@ -12,7 +12,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 
-class TaskStatusUpdated implements ShouldBroadcast
+class TaskStatusUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $projectId;
@@ -33,6 +33,7 @@ class TaskStatusUpdated implements ShouldBroadcast
     }
 
     /**
+     * 
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>

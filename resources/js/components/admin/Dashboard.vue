@@ -162,14 +162,13 @@ const setupRealTimeListeners = () => {
         taskStatusChannel.value =
   window.Echo.channel(`project.${pinnedProject.value}`);
 
-        // Use listenToAll to catch all events and handle them
-  properly
+        // Use listenToAll to catch all events and handle them properly
         taskStatusChannel.value.listenToAll((eventName, data) =>
   {
           console.log('Dashboard received event:', eventName,
   data);
 
-          if (eventName === '.TaskStatusUpdated') {
+          if (eventName === 'TaskStatusUpdated') {
             console.log('Task status updated:', data);
             getChartData(pinnedProject.value);
           }
