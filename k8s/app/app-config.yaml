@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: laravel-config
+  namespace: default
+data:
+  APP_NAME: "TaskApp"
+  APP_ENV: "production"
+  APP_DEBUG: "false"
+  APP_URL: "http://<WORKER_PUBLIC_IP>:30080"
+  DB_CONNECTION: "mysql"
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  DB_DATABASE: "realtime"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  BROADCAST_CONNECTION: "reverb"
+  QUEUE_CONNECTION: "redis"
+  CACHE_STORE: "redis"
+  SESSION_DRIVER: "redis"
+  REVERB_HOST: "0.0.0.0"
+  REVERB_PORT: "8080"
+  VITE_REVERB_HOST: "<WORKER_PUBLIC_IP>"
+  VITE_REVERB_PORT: "30088"
+  MAIL_MAILER: "log"
+  LOG_LEVEL: "error"

@@ -22,3 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 database-init.sql
+/k8s/app/app-secret.yaml
+/k8s/mysql/mysql-secret.yaml
