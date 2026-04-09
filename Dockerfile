@@ -1,12 +1,12 @@
 # ─────────────────────────────────────────────
 # Stage 1 — Node: build Vue/Vite assets
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS node-builder
+FROM node:20 AS node-builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
+COPY package.json  ./
+RUN npm install --legacy-peer-deps
 
 COPY resources/ resources/
 COPY vite.config.js ./
