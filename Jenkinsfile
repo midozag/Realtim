@@ -92,7 +92,7 @@ pipeline {
                         sed -i 's|IMAGE_PLACEHOLDER|${IMAGE_FULL}|g' k8s/app/app-deployment.yaml
 
                         # Apply ConfigMap and app manifests
-                        kubectl apply -f k8s/app/app-configmap.yaml
+                        kubectl apply -f k8s/app/app-config.yaml
                         kubectl apply -f k8s/app/app-deployment.yaml
                         kubectl apply -f k8s/app/app-service.yaml
 
