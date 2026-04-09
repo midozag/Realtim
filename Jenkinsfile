@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = "zag2020/realtime_app"
         IMAGE_TAG = "${BUILD_NUMBER}"
         IMAGE_FULL = "${IMAGE_NAME}:${IMAGE_TAG}"
+        DOCKERHUB_PASSWORD = credentials('DOCKERHUB_PASSWORD')
     }
     stages {
         stage('Git Checkout') {
@@ -70,17 +71,12 @@ pipeline {
         }
         stage('Docker Push') {
             steps {
-                script {
-                    withDockerRegistry(
-                        credentialsId: 'dockerhub-creds',
-                        url: ''
-                    ) {
-                        sh """
-                            docker push ${IMAGE_FULL}
-                            docker push ${IMAGE_NAME}:latest
-                        """
-                    }
-                }
+                sh """
+                    echo ${DOCKERHUB_PASSWORD} | docker login -u zag2020 --password-stdin
+                    docker push ${IMAGE_FULL}
+                    docker push ${IMAGE_NAME}:latest
+                    docker logout
+                """
             }
         }
     }
