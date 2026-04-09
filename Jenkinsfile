@@ -56,5 +56,32 @@ pipeline {
                 """
             }
         }
+        stage('Trivy Image Scan') {
+            steps {
+                sh """
+                    trivy image \
+                      --format table \
+                      --exit-code 0 \
+                      --severity HIGH,CRITICAL \
+                      --output trivy-image-report.html \
+                      ${IMAGE_FULL}
+                """
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                script {
+                    withDockerRegistry(
+                        credentialsId: 'dockerhub-creds',
+                        url: ''
+                    ) {
+                        sh """
+                            docker push ${IMAGE_FULL}
+                            docker push ${IMAGE_NAME}:latest
+                        """
+                    }
+                }
+            }
+        }
     }
 }
