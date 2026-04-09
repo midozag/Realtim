@@ -71,12 +71,18 @@ pipeline {
         }
         stage('Docker Push') {
             steps {
-                sh """
-                    echo ${DOCKERHUB_PASSWORD} | docker login -u zag2020 --password-stdin
-                    docker push ${IMAGE_FULL}
-                    docker push ${IMAGE_NAME}:latest
-                    docker logout
-                """
+                 withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                        docker push ${IMAGE_FULL}
+                        docker push ${IMAGE_NAME}:latest
+                        docker logout
+                    """
+                }
             }
         }
     }
