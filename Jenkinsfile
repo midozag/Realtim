@@ -5,7 +5,6 @@ pipeline {
         IMAGE_NAME = "zag2020/realtime_app"
         IMAGE_TAG = "${BUILD_NUMBER}"
         IMAGE_FULL = "${IMAGE_NAME}:${IMAGE_TAG}"
-        DOCKERHUB_PASSWORD = credentials('DOCKERHUB_PASSWORD')
     }
     stages {
         stage('Git Checkout') {
