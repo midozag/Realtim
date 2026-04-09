@@ -2,6 +2,9 @@ pipeline {
     agent any
     environment {
         SONAR_SCANNER = tool 'SonarScanner'
+        IMAGE_NAME = "zag2020/realtime_app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_FULL = "${IMAGE_NAME}:${IMAGE_TAG}"
     }
     stages {
         stage('Git Checkout') {
@@ -39,6 +42,16 @@ pipeline {
                       --exit-code 0 \
                       --severity HIGH,CRITICAL \
                       --output trivy-fs-report.html \
+                      .
+                """
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh """
+                    docker build \
+                      -t ${IMAGE_FULL} \
+                      -t ${IMAGE_NAME}:latest \
                       .
                 """
             }
