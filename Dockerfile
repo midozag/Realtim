@@ -47,6 +47,11 @@ COPY . .
 
 COPY --from=node-builder /app/public/build public/build
 
+# Create required directories before composer dump-autoload
+RUN mkdir -p bootstrap/cache storage/logs storage/framework/cache \
+    storage/framework/sessions storage/framework/views \
+    && chmod -R 775 bootstrap/cache storage
+
 RUN composer dump-autoload --optimize
 
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
