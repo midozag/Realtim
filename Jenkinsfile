@@ -84,5 +84,41 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to Kubernetes') {
+            steps {
+                withKubeConfig(credentialsId: 'k8s-config') {
+                    sh """
+                        # Replace IMAGE_PLACEHOLDER with real image tag
+                        sed -i 's|IMAGE_PLACEHOLDER|${IMAGE_FULL}|g' k8s/app/app-deployment.yaml
+
+                        # Apply ConfigMap and app manifests
+                        kubectl apply -f k8s/app/app-configmap.yaml
+                        kubectl apply -f k8s/app/app-deployment.yaml
+                        kubectl apply -f k8s/app/app-service.yaml
+
+                        # Wait for rolling update to complete
+                        kubectl rollout status deployment/laravel-app --timeout=180s
+
+                        # Show current status
+                        echo "── Pods ──────────────────────────────"
+                        kubectl get pods
+                        echo "── Services ──────────────────────────"
+                        kubectl get services
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "Pipeline succeeded — app deployed to Kubernetes"
+            sh """
+                docker rmi ${IMAGE_FULL} || true
+                docker rmi ${IMAGE_NAME}:latest || true
+            """
+        }
+        failure {
+            echo "Pipeline failed"
+        }
     }
 }
