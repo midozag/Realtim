@@ -31,5 +31,17 @@ pipeline {
                 waitForQualityGate abortPipeline: true
             }
         }
+        stage('Trivy FS Scan') {
+            steps {
+                sh """
+                    trivy fs \
+                      --format table \
+                      --exit-code 0 \
+                      --severity HIGH,CRITICAL \
+                      --output trivy-fs-report.html \
+                      .
+                """
+            }
+        }
     }
 }
