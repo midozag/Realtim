@@ -7,7 +7,7 @@ data:
   APP_NAME: "TaskApp"
   APP_ENV: "production"
   APP_DEBUG: "false"
-  APP_URL: "http://<WORKER_PUBLIC_IP>:30080"
+  APP_URL: "http://34.230.13.14:30080"
   DB_CONNECTION: "mysql"
   DB_HOST: "mysql"
   DB_PORT: "3306"
