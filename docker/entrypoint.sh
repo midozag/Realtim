@@ -18,7 +18,7 @@ fi
 
 # Run migrations
 echo "Running migrations..."
-php artisan migrate --force
+BROADCAST_CONNECTION=log php artisan migrate --force
 
 # Cache config, routes, views
 echo "Caching config routes and views..."
