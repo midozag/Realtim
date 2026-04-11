@@ -33,14 +33,14 @@ spec:
             cpu: "500m"
         readinessProbe:
           httpGet:
-            path: /
+            path: /api/count
             port: 80
           initialDelaySeconds: 60
           periodSeconds: 10
           failureThreshold: 5
         livenessProbe:
           httpGet:
-            path: /
+            path: /api/count
             port: 80
           initialDelaySeconds: 120
           periodSeconds: 20
