@@ -17,13 +17,8 @@ fi
 echo "Running migrations..."
 BROADCAST_CONNECTION=log php artisan migrate --force
 
-echo "Caching config routes and views..."
-BROADCAST_CONNECTION=log php artisan config:cache
-BROADCAST_CONNECTION=log php artisan route:cache
-BROADCAST_CONNECTION=log php artisan view:cache
-
 echo "Linking storage..."
-BROADCAST_CONNECTION=log php artisan storage:link --force 2>/dev/null || true
+php artisan storage:link --force 2>/dev/null || true
 
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
